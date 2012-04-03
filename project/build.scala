@@ -27,6 +27,7 @@ object BcTests {
 
   val showFirst = TaskKey[Unit]("bc-show-first")
   val showSecond = TaskKey[Unit]("bc-show-second")
+  val showDiff = TaskKey[Unit]("bc-show-diff")
 
   val runBc = InputKey[Unit]("bc-run")
 
@@ -37,6 +38,7 @@ object BcTests {
       scalaSource in SecondCompile <<= sourceDirectory in Compile apply (_ / "scala1"),
       showFirst <<= (sources in Compile) map showSourcesTask,
       showSecond <<= (sources in SecondCompile) map showSourcesTask,
+      showDiff <<= (sources in Compile, sources in SecondCompile) map showSourceDiffTask,
       unmanagedClasspath in SecondCompile <<= fullClasspath in Compile,
       mainClass := Some("Main"),
       runBc <<= Defaults.runTask(fullClasspath in SecondCompile, mainClass, runner in run)
@@ -48,4 +50,26 @@ object BcTests {
       file <- sources
       line <- IO.readLines(file)
     } println(line)
+
+
+  def showSourceDiffTask(s1: Seq[File], s2: Seq[File]) = {
+    val sideLength = 50
+    val lines1 = wrapSourceFiles(s1, sideLength)
+    val lines2 = wrapSourceFiles(s2, sideLength)
+    for {
+      (l,r) <- lines1.zipAll(lines2, "", "")
+      line = l.padTo(sideLength, ' ') + " | " + r
+    } println(line)
+  }
+
+  def wrapSourceFiles(sources: Seq[File], maxLength: Int): Seq[String] =
+    for{
+      file <- sources
+      line <- IO.readLines(file)
+      line2 <- splitLine(line, maxLength)
+    } yield line2
+
+  def splitLine(line: String, maxLength: Int): Seq[String] =
+    if(line.length > maxLength)  (line take (maxLength-1) + '\'') +: splitLine(line drop (maxLength-1), maxLength)
+    else Vector(line)
 }
