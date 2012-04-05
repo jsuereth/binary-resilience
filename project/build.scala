@@ -56,9 +56,10 @@ object BcTests {
     val sideLength = 50
     val lines1 = wrapSourceFiles(s1, sideLength)
     val lines2 = wrapSourceFiles(s2, sideLength)
+    val padLength = (lines1 map (_.length)).max
     for {
       (l,r) <- lines1.zipAll(lines2, "", "")
-      line = l.padTo(sideLength, ' ') + " | " + r
+      line = l.padTo(padLength, ' ') + " | " + r
     } println(line)
   }
 
