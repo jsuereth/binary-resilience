@@ -1,4 +1,4 @@
 trait Foo {
-  def x = "HI"
+  def x = { println("Calculating HI"); "HI !" }
   lazy val z = "ZOMG"
 }

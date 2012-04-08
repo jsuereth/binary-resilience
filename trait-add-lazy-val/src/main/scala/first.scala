@@ -10,5 +10,6 @@ object Main {
   def main(args: Array[String]): Unit = {
     val b = new Bar(1)
     println(b.bar)
+    println(b.bar)
   }
 }

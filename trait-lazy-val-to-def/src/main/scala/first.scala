@@ -4,6 +4,9 @@ trait Foo {
 
 object Main {
 
-  def main(args: Array[String]): Unit = 
-    println(new Foo {}.x)
+  def main(args: Array[String]): Unit =  {
+    val tmp = new Foo {}
+    println(tmp.x)
+    println(tmp.x)
+  }
 }

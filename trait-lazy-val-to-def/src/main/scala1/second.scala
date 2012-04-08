@@ -1,3 +1,3 @@
 trait Foo {
-  def x = 1
+  def x = { println("Calculating Foo.x"); 1 }
 }
