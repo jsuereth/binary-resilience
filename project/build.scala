@@ -22,6 +22,10 @@ object BcBuild extends Build {
   
 }
 
+trait BcResult
+case class RuntimeFailure(proj: String) extends BcResult
+case class Success(proj: String) extends BcResult
+
 object BcTests {
   val SecondCompile = Configuration("second-compile", "The second compilation", true, List(Compile), true)
 
@@ -29,7 +33,7 @@ object BcTests {
   val showSecond = TaskKey[Unit]("bc-show-second")
   val showDiff = TaskKey[Unit]("bc-show-diff")
 
-  val runBc = InputKey[Unit]("bc-run")
+  val runBc = TaskKey[BcResult]("bc-run")
 
 
   def settings: Seq[Setting[_]] = 
@@ -41,9 +45,15 @@ object BcTests {
       showDiff <<= (sources in Compile, sources in SecondCompile) map showSourceDiffTask,
       unmanagedClasspath in SecondCompile <<= fullClasspath in Compile,
       mainClass := Some("Main"),
-      runBc <<= Defaults.runTask(fullClasspath in SecondCompile, mainClass, runner in run)
+      runBc <<= (name, fullClasspath in SecondCompile, mainClass, runner in run, streams) map runTask
     )
 
+
+  def runTask(name: String, classpath: Classpath, mainClass: Option[String], runner: ScalaRun, s: TaskStreams): BcResult =
+    runner.run(mainClass getOrElse "Main", classpath map (_.data), Seq.empty, s.log) match {
+       case Some(msg) => Success(name)
+       case None      => RuntimeFailure(name)
+    }
 
   def showSourcesTask(sources: Seq[File]): Unit = 
     for{
