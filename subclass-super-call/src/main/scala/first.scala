@@ -2,7 +2,8 @@
 abstract class Foo {}
 
 class Bar extends Foo {
-  override def toString = "BAR + " + super.toString
+  override def toString = 
+    "BAR + " + super.toString
 }
 
 
