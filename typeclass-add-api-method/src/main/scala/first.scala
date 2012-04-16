@@ -17,8 +17,17 @@ trait TypeTraitInstances {
   }
 }
 
+trait Foo
+object Foo {
+  implicit object FooSerializable extends Serializable[Foo] {
+    def encode(t: Foo): Array[Byte] = Array(1.toByte,2.toByte,3.toByte)
+  }
+}
+
 
 object Main {
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     println(Serializable.encode(5) mkString "-")
+    println(Serializable.encode(new Foo {}) mkString "-")
+  }
 }
